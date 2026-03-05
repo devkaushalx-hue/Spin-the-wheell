@@ -76,6 +76,12 @@ margin-top:30px;
 color:#FFD700;
 }
 
+#claim{
+margin-top:20px;
+font-size:18px;
+color:white;
+}
+
 </style>
 
 </head>
@@ -106,6 +112,8 @@ color:#FFD700;
 
 <h2 id="result"></h2>
 
+<p id="claim"></p>
+
 <script>
 
 const prizes = [
@@ -114,7 +122,7 @@ const prizes = [
 "Free Logo",
 "Buy 1 Get 1 Design",
 "₹70 OFF Combo",
-"₹30 OFF Try Again",
+"₹30 OFF",
 "Mini Branding ₹249"
 
 ];
@@ -168,7 +176,7 @@ return;
 
 if(localStorage.getItem("ndrSpin")){
 
-alert("You already used your spin!");
+alert("You already used your spin on this device!");
 
 return;
 
@@ -182,20 +190,29 @@ spinWheel(phone);
 
 function spinWheel(phone){
 
-let spin=360*5+Math.random()*360;
+let prizeIndex=Math.floor(Math.random()*prizes.length);
 
-angle+=spin;
+let spinAngle=(360*5)+(prizeIndex*(360/prizes.length));
+
+angle+=spinAngle;
 
 canvas.style.transition="transform 6s cubic-bezier(.17,.67,.83,.67)";
 canvas.style.transform=`rotate(${angle}deg)`;
 
 setTimeout(()=>{
 
-let index=Math.floor(Math.random()*prizes.length);
+let prize=prizes[prizeIndex];
 
-let prize=prizes[index];
+document.getElementById("result").innerText="🎉 You Won: "+prize;
 
-document.getElementById("result").innerText="You Won: "+prize;
+document.getElementById("claim").innerHTML=
+"📸 Take a screenshot and send it to <br><br>" +
+"<b>WhatsApp: 9988870674</b><br><br>" +
+"to claim your reward.";
+
+console.log("New Spin Result:");
+console.log("Phone:",phone);
+console.log("Prize:",prize);
 
 },6000);
 
