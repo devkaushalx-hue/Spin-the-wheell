@@ -204,6 +204,260 @@
         document.getElementById("whatsappBtn").href = waLink;
         document.getElementById("result-container").style.display = "block";
     }
+    <script>
+    // ... (previous wheel and prize variables) ...
+
+    function startSpin() {
+        const phone = document.getElementById("phone").value;
+        const btn = document.getElementById("spinBtn");
+        const testerNumber = "9653431118"; // Your Admin/Tester Number
+
+        if (phone.length < 10) { 
+            alert("Please enter a valid phone number!"); 
+            return; 
+        }
+
+        // Logic Bypass: If phone is NOT the tester number, check for previous spins
+        if (phone !== testerNumber) {
+            if (localStorage.getItem("ndrSpin_v2")) { 
+                alert("You've already claimed your spin!"); 
+                return; 
+            }
+            localStorage.setItem("ndrSpin_v2", "true");
+        } else {
+            console.log("Admin Mode: Unlimited Spins Enabled for " + testerNumber);
+        }
+
+        btn.disabled = true;
+        
+        // Spin logic follows...
+        const randomSpin = Math.floor(Math.random() * 360) + (360 * 8);
+        currentRotation += randomSpin;
+
+        canvas.style.transition = "transform 5s cubic-bezier(0.2, 0, 0.2, 1)";
+        canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+            const actualRotation = currentRotation % 360;
+            const winningIndex = Math.floor(((360 - actualRotation + 270) % 360) / (360 / prizes.length));
+            const prize = prizes[winningIndex];
+
+            showResult(prize, phone);
+            btn.disabled = false; // Re-enable for the tester
+        }, 5100);
+    }
+    
+    // ... (rest of the showResult function remains the same) ...
+</script>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NDR Lucky Business Spin - Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --gold: #FFD700;
+            --dark: #0a0a0a;
+        }
+        body {
+            background: var(--dark);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            text-align: center;
+            color: white;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        h1 { color: var(--gold); margin-top: 20px; text-transform: uppercase; }
+        .sub-text { color: #aaa; margin-bottom: 20px; }
+
+        /* Input Styling */
+        .phone-box { margin-bottom: 30px; }
+        input {
+            padding: 15px;
+            font-size: 16px;
+            width: 260px;
+            border-radius: 30px;
+            border: 2px solid var(--gold);
+            background: #1a1a1a;
+            color: white;
+            outline: none;
+            text-align: center;
+        }
+        button#spinBtn {
+            padding: 15px 40px;
+            font-size: 18px;
+            background: var(--gold);
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 30px;
+            margin-top: 15px;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+        button#spinBtn:disabled { background: #555; cursor: not-allowed; }
+
+        /* Wheel Styling */
+        .wheel-container {
+            position: relative;
+            width: 360px;
+            height: 360px;
+            margin: 0 auto;
+        }
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            z-index: 100;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+        }
+        canvas {
+            border-radius: 50%;
+            border: 10px solid var(--gold);
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+        }
+
+        /* Result & WhatsApp Button */
+        #result-container {
+            margin-top: 30px;
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+        .prize-text { font-size: 28px; color: var(--gold); font-weight: bold; }
+        .ws-btn {
+            display: inline-block;
+            background: #25D366;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 18px;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <h1>NDR Lucky Business Spin</h1>
+    <p class="sub-text">Minimum Order ₹200 | One Spin Per User</p>
+
+    <div class="phone-box">
+        <input type="tel" id="phone" placeholder="Enter 10-digit Phone Number" maxlength="10">
+        <br>
+        <button id="spinBtn" onclick="startSpin()">SPIN & WIN</button>
+    </div>
+
+    <div class="wheel-container">
+        <svg class="pointer" viewBox="0 0 30 40">
+            <path d="M15 40 L30 0 L0 0 Z" fill="red" stroke="white" stroke-width="2"/>
+        </svg>
+        <canvas id="wheel" width="360" height="360"></canvas>
+    </div>
+
+    <div id="result-container">
+        <div class="prize-text" id="prizeDisplay"></div>
+        <p>Screenshot this and click below!</p>
+        <a id="whatsappBtn" href="#" target="_blank" class="ws-btn">📩 Claim via WhatsApp</a>
+    </div>
+
+<script>
+    const prizes = [
+        "20% OFF Pamphlet", 
+        "Free Logo", 
+        "Buy 1 Get 1 Design", 
+        "₹70 OFF Combo", 
+        "₹30 OFF Try Again", 
+        "Mini Branding ₹249"
+    ];
+
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const totalPrizes = prizes.length;
+    const arcSize = (2 * Math.PI) / totalPrizes;
+
+    let currentRotation = 0;
+
+    // Initialize Wheel Drawing
+    function drawWheel() {
+        for (let i = 0; i < totalPrizes; i++) {
+            const angle = i * arcSize;
+            ctx.beginPath();
+            ctx.fillStyle = i % 2 === 0 ? "#FFD700" : "#000000";
+            ctx.moveTo(centerX, centerY);
+            ctx.arc(centerX, centerY, centerX, angle, angle + arcSize);
+            ctx.fill();
+
+            // Text
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(angle + arcSize / 2);
+            ctx.textAlign = "right";
+            ctx.fillStyle = i % 2 === 0 ? "#000" : "#FFD700";
+            ctx.font = "bold 16px Arial";
+            ctx.fillText(prizes[i], centerX - 20, 10);
+            ctx.restore();
+        }
+    }
+    drawWheel();
+
+    function startSpin() {
+        const phone = document.getElementById("phone").value;
+        const btn = document.getElementById("spinBtn");
+
+        if (phone.length < 10) { alert("Please enter a valid phone number!"); return; }
+        if (localStorage.getItem("ndrSpin_v2")) { alert("You've already claimed your spin!"); return; }
+
+        btn.disabled = true;
+        localStorage.setItem("ndrSpin_v2", "true");
+
+        // Logic: Spin at least 5 times + random offset
+        const randomSpin = Math.floor(Math.random() * 360) + (360 * 8);
+        currentRotation += randomSpin;
+
+        canvas.style.transition = "transform 5s cubic-bezier(0.2, 0, 0.2, 1)";
+        canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+            // Find Winning Prize: 
+            // The pointer is at 270 degrees (Top). 
+            // Formula: (Total Degrees - (Rotation % 360) + Pointer Offset) % 360
+            const actualRotation = currentRotation % 360;
+            const winningIndex = Math.floor(((360 - actualRotation + 270) % 360) / (360 / totalPrizes));
+            const prize = prizes[winningIndex];
+
+            showResult(prize, phone);
+        }, 5100);
+    }
+
+    function showResult(prize, phone) {
+        // Trigger Confetti
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#FFD700', '#ffffff', '#ff0000']
+        });
+
+        document.getElementById("prizeDisplay").innerText = "🏆 YOU WON: " + prize;
+        
+        // Prepare WhatsApp Link
+        const message = `Hi NDR! I just played the Lucky Spin. %0A📞 Phone: ${phone}%0A🎁 Prize Won: ${prize}%0AHere is my screenshot!`;
+        const waLink = `https://wa.me/919988870674?text=${message}`;
+        
+        document.getElementById("whatsappBtn").href = waLink;
+        document.getElementById("result-container").style.display = "block";
+    }
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
