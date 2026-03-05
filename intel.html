@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>NDR Lucky Business Spin</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
+background:#0a0a0a;
+font-family:Arial;
+text-align:center;
+color:white;
+}
+
+h1{
+color:#FFD700;
+margin-top:20px;
+}
+
+.phone-box{
+margin-top:20px;
+}
+
+input{
+padding:12px;
+font-size:16px;
+width:220px;
+border-radius:6px;
+border:none;
+}
+
+button{
+padding:12px 30px;
+font-size:18px;
+background:#FFD700;
+border:none;
+cursor:pointer;
+font-weight:bold;
+border-radius:6px;
+}
+
+.wheel-container{
+position:relative;
+width:350px;
+margin:40px auto;
+}
+
+.pointer{
+width:0;
+height:0;
+
+border-left:20px solid transparent;
+border-right:20px solid transparent;
+border-top:40px solid red;
+
+position:absolute;
+left:50%;
+transform:translateX(-50%);
+top:-10px;
+z-index:10;
+}
+
+canvas{
+border-radius:50%;
+border:12px solid gold;
+box-shadow:0 0 30px gold;
+}
+
+#result{
+font-size:24px;
+margin-top:30px;
+color:#FFD700;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>NDR Lucky Business Spin</h1>
+
+<p>Minimum Order ₹200</p>
+
+<div class="phone-box">
+
+<input id="phone" placeholder="Enter Phone Number">
+
+<br><br>
+
+<button onclick="startSpin()">SPIN NOW</button>
+
+</div>
+
+<div class="wheel-container">
+
+<div class="pointer"></div>
+
+<canvas id="wheel" width="350" height="350"></canvas>
+
+</div>
+
+<h2 id="result"></h2>
+
+<script>
+
+const prizes = [
+
+"20% OFF Pamphlet",
+"Free Logo",
+"Buy 1 Get 1 Design",
+"₹70 OFF Combo",
+"₹30 OFF Try Again",
+"Mini Branding ₹249"
+
+];
+
+const canvas=document.getElementById("wheel");
+const ctx=canvas.getContext("2d");
+
+const arc=Math.PI*2/prizes.length;
+
+let angle=0;
+
+for(let i=0;i<prizes.length;i++){
+
+ctx.beginPath();
+
+ctx.fillStyle=i%2?"#000":"#FFD700";
+
+ctx.moveTo(175,175);
+
+ctx.arc(175,175,175,arc*i,arc*(i+1));
+
+ctx.fill();
+
+ctx.save();
+
+ctx.translate(175,175);
+
+ctx.rotate(arc*i+arc/2);
+
+ctx.fillStyle=i%2?"#FFD700":"#000";
+
+ctx.font="14px Arial";
+
+ctx.fillText(prizes[i],70,0);
+
+ctx.restore();
+
+}
+
+function startSpin(){
+
+let phone=document.getElementById("phone").value;
+
+if(phone.length<10){
+
+alert("Enter valid phone number");
+
+return;
+
+}
+
+if(localStorage.getItem("ndrSpin")){
+
+alert("You already used your spin!");
+
+return;
+
+}
+
+localStorage.setItem("ndrSpin","true");
+
+spinWheel(phone);
+
+}
+
+function spinWheel(phone){
+
+let spin=360*5+Math.random()*360;
+
+angle+=spin;
+
+canvas.style.transition="transform 6s cubic-bezier(.17,.67,.83,.67)";
+canvas.style.transform=`rotate(${angle}deg)`;
+
+setTimeout(()=>{
+
+let index=Math.floor(Math.random()*prizes.length);
+
+let prize=prizes[index];
+
+document.getElementById("result").innerText="You Won: "+prize;
+
+},6000);
+
+}
+
+</script>
+
+</body>
+</html>
