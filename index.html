@@ -1,59 +1,115 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>NDR Lucky Business Spin - Pro</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NDR Lucky Business Spin | Pro Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --gold: #FFD700;
-            --dark: #0a0a0a;
+            --dark-gold: #b8860b;
+            --black: #0a0a0a;
+            --surface: #1a1a1a;
         }
+
         body {
-            background: var(--dark);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            text-align: center;
+            background-color: var(--black);
+            background-image: radial-gradient(circle at center, #222 0%, #0a0a0a 100%);
             color: white;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
             overflow-x: hidden;
         }
-        h1 { color: var(--gold); margin-top: 20px; text-transform: uppercase; }
-        .sub-text { color: #aaa; margin-bottom: 20px; }
 
-        /* Input Styling */
-        .phone-box { margin-bottom: 30px; }
-        input {
-            padding: 15px;
-            font-size: 16px;
-            width: 260px;
-            border-radius: 30px;
-            border: 2px solid var(--gold);
-            background: #1a1a1a;
-            color: white;
-            outline: none;
+        .header {
+            margin-top: 30px;
             text-align: center;
         }
-        button#spinBtn {
-            padding: 15px 40px;
-            font-size: 18px;
-            background: var(--gold);
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 30px;
-            margin-top: 15px;
-            transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
-        }
-        button#spinBtn:disabled { background: #555; cursor: not-allowed; }
 
-        /* Wheel Styling */
-        .wheel-container {
-            position: relative;
-            width: 360px;
-            height: 360px;
-            margin: 0 auto;
+        h1 {
+            color: var(--gold);
+            font-size: 28px;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
         }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .input-container {
+            margin: 25px 0;
+            width: 90%;
+            max-width: 400px;
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            border: 2px solid #333;
+            background: #000;
+            color: var(--gold);
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--gold);
+        }
+
+        .spin-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+            border: none;
+            border-radius: 8px;
+            color: black;
+            font-weight: 800;
+            font-size: 18px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        .spin-btn:active {
+            transform: scale(0.98);
+        }
+
+        .spin-btn:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        /* WHEEL SECTION */
+        .wheel-wrapper {
+            position: relative;
+            width: 380px;
+            height: 380px;
+            margin-top: 20px;
+            user-select: none;
+        }
+
         .pointer {
             position: absolute;
             top: -20px;
@@ -63,401 +119,249 @@
             z-index: 100;
             filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
         }
+
         canvas {
-            border-radius: 50%;
-            border: 10px solid var(--gold);
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+            width: 100%;
+            height: 100%;
         }
 
-        /* Result & WhatsApp Button */
-        #result-container {
-            margin-top: 30px;
+        #result-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 85%;
+            max-width: 350px;
+            background: #fff;
+            color: #000;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 1000;
             display: none;
-            padding: 20px;
-            animation: fadeIn 0.5s ease;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
-        .prize-text { font-size: 28px; color: var(--gold); font-weight: bold; }
-        .ws-btn {
-            display: inline-block;
+
+        #result-modal.active {
+            display: block;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            to { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            z-index: 999;
+        }
+
+        .claim-btn {
             background: #25D366;
             color: white;
-            padding: 15px 30px;
+            padding: 12px 20px;
             text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
+            border-radius: 5px;
+            display: inline-block;
             margin-top: 15px;
-            font-size: 18px;
+            font-weight: bold;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <h1>NDR Lucky Business Spin</h1>
-    <p class="sub-text">Minimum Order ₹200 | One Spin Per User</p>
+<div class="header">
+    <h1>NDR Lucky Spin</h1>
+    <div class="subtitle">(Minimum Order ₹200)</div>
+</div>
 
-    <div class="phone-box">
-        <input type="tel" id="phone" placeholder="Enter 10-digit Phone Number" maxlength="10">
-        <br>
-        <button id="spinBtn" onclick="startSpin()">SPIN & WIN</button>
-    </div>
+<div class="input-container">
+    <input type="tel" id="phoneInput" placeholder="Enter Mobile Number" maxlength="10">
+    <button class="spin-btn" id="spinBtn" onclick="initiateSpin()">Spin & Grow</button>
+</div>
 
-    <div class="wheel-container">
-        <svg class="pointer" viewBox="0 0 30 40">
-            <path d="M15 40 L30 0 L0 0 Z" fill="red" stroke="white" stroke-width="2"/>
-        </svg>
-        <canvas id="wheel" width="360" height="360"></canvas>
-    </div>
+<div class="wheel-wrapper">
+    <svg class="pointer" viewBox="0 0 50 50">
+        <path d="M25 50 L5 10 A20 20 0 1 1 45 10 Z" fill="#ff0000" stroke="white" stroke-width="2"/>
+    </svg>
+    <canvas id="wheelCanvas" width="800" height="800"></canvas>
+</div>
 
-    <div id="result-container">
-        <div class="prize-text" id="prizeDisplay"></div>
-        <p>Screenshot this and click below!</p>
-        <a id="whatsappBtn" href="#" target="_blank" class="ws-btn">📩 Claim via WhatsApp</a>
-    </div>
+<div class="overlay" id="overlay"></div>
+<div id="result-modal">
+    <h2 style="margin-top:0">🎉 Congratulations!</h2>
+    <p id="winningPrizeText" style="font-size: 20px; font-weight: bold; color: #d4af37;"></p>
+    <p>Screenshot this win to claim your reward!</p>
+    <a id="whatsappLink" href="#" class="claim-btn">Claim on WhatsApp</a>
+    <br><br>
+    <button onclick="closeModal()" style="border:none; background:none; color:#777; cursor:pointer">Close</button>
+</div>
 
 <script>
+    const ADMIN_NUMBER = "9653431118";
+    const CLAIM_NUMBER = "9988870674";
+
     const prizes = [
-        "20% OFF Pamphlet", 
-        "Free Logo", 
-        "Buy 1 Get 1 Design", 
-        "₹70 OFF Combo", 
-        "₹30 OFF Try Again", 
-        "Mini Branding ₹249"
+        { text: "20% OFF\non Pamphlet", color: "#FFD700", textColor: "#000" },
+        { text: "FREE Logo with\n1 Pamphlet Order", color: "#000", textColor: "#FFD700" },
+        { text: "Buy 1 Pamphlet\nGet 1 Design FREE", color: "#FFD700", textColor: "#000" },
+        { text: "Flat ₹70 OFF\non Combo", color: "#000", textColor: "#FFD700" },
+        { text: "NDR Golden\n₹30 OFF Confirmed", color: "#FFD700", textColor: "#000" },
+        { text: "Mini Branding\nCombo @ ₹249", color: "#000", textColor: "#FFD700" }
     ];
 
-    const canvas = document.getElementById("wheel");
-    const ctx = canvas.getContext("2d");
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const totalPrizes = prizes.length;
-    const arcSize = (2 * Math.PI) / totalPrizes;
-
-    let currentRotation = 0;
-
-    // Initialize Wheel Drawing
-    function drawWheel() {
-        for (let i = 0; i < totalPrizes; i++) {
-            const angle = i * arcSize;
-            ctx.beginPath();
-            ctx.fillStyle = i % 2 === 0 ? "#FFD700" : "#000000";
-            ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, centerX, angle, angle + arcSize);
-            ctx.fill();
-
-            // Text
-            ctx.save();
-            ctx.translate(centerX, centerY);
-            ctx.rotate(angle + arcSize / 2);
-            ctx.textAlign = "right";
-            ctx.fillStyle = i % 2 === 0 ? "#000" : "#FFD700";
-            ctx.font = "bold 16px Arial";
-            ctx.fillText(prizes[i], centerX - 20, 10);
-            ctx.restore();
-        }
-    }
-    drawWheel();
-
-    function startSpin() {
-        const phone = document.getElementById("phone").value;
-        const btn = document.getElementById("spinBtn");
-
-        if (phone.length < 10) { alert("Please enter a valid phone number!"); return; }
-        if (localStorage.getItem("ndrSpin_v2")) { alert("You've already claimed your spin!"); return; }
-
-        btn.disabled = true;
-        localStorage.setItem("ndrSpin_v2", "true");
-
-        // Logic: Spin at least 5 times + random offset
-        const randomSpin = Math.floor(Math.random() * 360) + (360 * 8);
-        currentRotation += randomSpin;
-
-        canvas.style.transition = "transform 5s cubic-bezier(0.2, 0, 0.2, 1)";
-        canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-        setTimeout(() => {
-            // Find Winning Prize: 
-            // The pointer is at 270 degrees (Top). 
-            // Formula: (Total Degrees - (Rotation % 360) + Pointer Offset) % 360
-            const actualRotation = currentRotation % 360;
-            const winningIndex = Math.floor(((360 - actualRotation + 270) % 360) / (360 / totalPrizes));
-            const prize = prizes[winningIndex];
-
-            showResult(prize, phone);
-        }, 5100);
-    }
-
-    function showResult(prize, phone) {
-        // Trigger Confetti
-        confetti({
-            particleCount: 150,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#FFD700', '#ffffff', '#ff0000']
-        });
-
-        document.getElementById("prizeDisplay").innerText = "🏆 YOU WON: " + prize;
-        
-        // Prepare WhatsApp Link
-        const message = `Hi NDR! I just played the Lucky Spin. %0A📞 Phone: ${phone}%0A🎁 Prize Won: ${prize}%0AHere is my screenshot!`;
-        const waLink = `https://wa.me/919988870674?text=${message}`;
-        
-        document.getElementById("whatsappBtn").href = waLink;
-        document.getElementById("result-container").style.display = "block";
-    }
-    <script>
-    // ... (previous wheel and prize variables) ...
-
-    function startSpin() {
-        const phone = document.getElementById("phone").value;
-        const btn = document.getElementById("spinBtn");
-        const testerNumber = "9653431118"; // Your Admin/Tester Number
-
-        if (phone.length < 10) { 
-            alert("Please enter a valid phone number!"); 
-            return; 
-        }
-
-        // Logic Bypass: If phone is NOT the tester number, check for previous spins
-        if (phone !== testerNumber) {
-            if (localStorage.getItem("ndrSpin_v2")) { 
-                alert("You've already claimed your spin!"); 
-                return; 
-            }
-            localStorage.setItem("ndrSpin_v2", "true");
-        } else {
-            console.log("Admin Mode: Unlimited Spins Enabled for " + testerNumber);
-        }
-
-        btn.disabled = true;
-        
-        // Spin logic follows...
-        const randomSpin = Math.floor(Math.random() * 360) + (360 * 8);
-        currentRotation += randomSpin;
-
-        canvas.style.transition = "transform 5s cubic-bezier(0.2, 0, 0.2, 1)";
-        canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-        setTimeout(() => {
-            const actualRotation = currentRotation % 360;
-            const winningIndex = Math.floor(((360 - actualRotation + 270) % 360) / (360 / prizes.length));
-            const prize = prizes[winningIndex];
-
-            showResult(prize, phone);
-            btn.disabled = false; // Re-enable for the tester
-        }, 5100);
-    }
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const spinBtn = document.getElementById('spinBtn');
     
-    // ... (rest of the showResult function remains the same) ...
-</script>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>NDR Lucky Business Spin - Pro</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        :root {
-            --gold: #FFD700;
-            --dark: #0a0a0a;
-        }
-        body {
-            background: var(--dark);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            text-align: center;
-            color: white;
-            margin: 0;
-            overflow-x: hidden;
-        }
-        h1 { color: var(--gold); margin-top: 20px; text-transform: uppercase; }
-        .sub-text { color: #aaa; margin-bottom: 20px; }
-
-        /* Input Styling */
-        .phone-box { margin-bottom: 30px; }
-        input {
-            padding: 15px;
-            font-size: 16px;
-            width: 260px;
-            border-radius: 30px;
-            border: 2px solid var(--gold);
-            background: #1a1a1a;
-            color: white;
-            outline: none;
-            text-align: center;
-        }
-        button#spinBtn {
-            padding: 15px 40px;
-            font-size: 18px;
-            background: var(--gold);
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 30px;
-            margin-top: 15px;
-            transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
-        }
-        button#spinBtn:disabled { background: #555; cursor: not-allowed; }
-
-        /* Wheel Styling */
-        .wheel-container {
-            position: relative;
-            width: 360px;
-            height: 360px;
-            margin: 0 auto;
-        }
-        .pointer {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            z-index: 100;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
-        }
-        canvas {
-            border-radius: 50%;
-            border: 10px solid var(--gold);
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
-        }
-
-        /* Result & WhatsApp Button */
-        #result-container {
-            margin-top: 30px;
-            display: none;
-            padding: 20px;
-            animation: fadeIn 0.5s ease;
-        }
-        .prize-text { font-size: 28px; color: var(--gold); font-weight: bold; }
-        .ws-btn {
-            display: inline-block;
-            background: #25D366;
-            color: white;
-            padding: 15px 30px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            margin-top: 15px;
-            font-size: 18px;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-</head>
-<body>
-
-    <h1>NDR Lucky Business Spin</h1>
-    <p class="sub-text">Minimum Order ₹200 | One Spin Per User</p>
-
-    <div class="phone-box">
-        <input type="tel" id="phone" placeholder="Enter 10-digit Phone Number" maxlength="10">
-        <br>
-        <button id="spinBtn" onclick="startSpin()">SPIN & WIN</button>
-    </div>
-
-    <div class="wheel-container">
-        <svg class="pointer" viewBox="0 0 30 40">
-            <path d="M15 40 L30 0 L0 0 Z" fill="red" stroke="white" stroke-width="2"/>
-        </svg>
-        <canvas id="wheel" width="360" height="360"></canvas>
-    </div>
-
-    <div id="result-container">
-        <div class="prize-text" id="prizeDisplay"></div>
-        <p>Screenshot this and click below!</p>
-        <a id="whatsappBtn" href="#" target="_blank" class="ws-btn">📩 Claim via WhatsApp</a>
-    </div>
-
-<script>
-    const prizes = [
-        "20% OFF Pamphlet", 
-        "Free Logo", 
-        "Buy 1 Get 1 Design", 
-        "₹70 OFF Combo", 
-        "₹30 OFF Try Again", 
-        "Mini Branding ₹249"
-    ];
-
-    const canvas = document.getElementById("wheel");
-    const ctx = canvas.getContext("2d");
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const totalPrizes = prizes.length;
-    const arcSize = (2 * Math.PI) / totalPrizes;
-
     let currentRotation = 0;
+    let isSpinning = false;
 
-    // Initialize Wheel Drawing
-    function drawWheel() {
-        for (let i = 0; i < totalPrizes; i++) {
-            const angle = i * arcSize;
+    // Drawing Logic
+    function draw() {
+        const size = canvas.width;
+        const center = size / 2;
+        const radius = center - 10;
+        const angleStep = (Math.PI * 2) / prizes.length;
+
+        ctx.clearRect(0,0,size,size);
+
+        prizes.forEach((prize, i) => {
+            const startAngle = i * angleStep + currentRotation;
+            const endAngle = startAngle + angleStep;
+
+            // Draw slice
             ctx.beginPath();
-            ctx.fillStyle = i % 2 === 0 ? "#FFD700" : "#000000";
-            ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, centerX, angle, angle + arcSize);
+            ctx.moveTo(center, center);
+            ctx.arc(center, center, radius, startAngle, endAngle);
+            ctx.fillStyle = prize.color;
             ctx.fill();
+            ctx.strokeStyle = "#daa520";
+            ctx.lineWidth = 4;
+            ctx.stroke();
 
-            // Text
+            // Draw Text
             ctx.save();
-            ctx.translate(centerX, centerY);
-            ctx.rotate(angle + arcSize / 2);
+            ctx.translate(center, center);
+            ctx.rotate(startAngle + angleStep / 2);
             ctx.textAlign = "right";
-            ctx.fillStyle = i % 2 === 0 ? "#000" : "#FFD700";
-            ctx.font = "bold 16px Arial";
-            ctx.fillText(prizes[i], centerX - 20, 10);
+            ctx.fillStyle = prize.textColor;
+            
+            // Handle Multi-line text
+            const lines = prize.text.split('\n');
+            ctx.font = "bold 28px Arial"; 
+            lines.forEach((line, index) => {
+                ctx.fillText(line, radius - 40, (index * 32) - (lines.length * 12));
+            });
+            
             ctx.restore();
+        });
+
+        // Center Decor
+        ctx.beginPath();
+        ctx.arc(center, center, 60, 0, Math.PI * 2);
+        ctx.fillStyle = "#000";
+        ctx.fill();
+        ctx.strokeStyle = varProp('--gold');
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        
+        ctx.fillStyle = "white";
+        ctx.font = "bold 20px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("NDR", center, center + 8);
+    }
+
+    function varProp(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    // Advanced Physics Engine
+    function initiateSpin() {
+        const phone = document.getElementById('phoneInput').value;
+        if (phone.length < 10) return alert("Enter valid phone number");
+
+        // Logic for Admin/Re-spin
+        if (phone !== ADMIN_NUMBER && localStorage.getItem('ndr_played')) {
+            alert("You've already used your spin! Contact support for more.");
+            return;
         }
-    }
-    drawWheel();
 
-    function startSpin() {
-        const phone = document.getElementById("phone").value;
-        const btn = document.getElementById("spinBtn");
+        if (isSpinning) return;
+        isSpinning = true;
+        spinBtn.disabled = true;
 
-        if (phone.length < 10) { alert("Please enter a valid phone number!"); return; }
-        if (localStorage.getItem("ndrSpin_v2")) { alert("You've already claimed your spin!"); return; }
+        const startTime = performance.now();
+        const duration = 5000 + Math.random() * 2000; // 5-7 seconds
+        const totalSpins = 10 + Math.random() * 5; 
+        const targetRotation = totalSpins * Math.PI * 2;
 
-        btn.disabled = true;
-        localStorage.setItem("ndrSpin_v2", "true");
+        function animate(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Custom Easing (Ease Out Cubic)
+            const easing = 1 - Math.pow(1 - progress, 3);
+            
+            currentRotation = easing * targetRotation;
+            draw();
 
-        // Logic: Spin at least 5 times + random offset
-        const randomSpin = Math.floor(Math.random() * 360) + (360 * 8);
-        currentRotation += randomSpin;
-
-        canvas.style.transition = "transform 5s cubic-bezier(0.2, 0, 0.2, 1)";
-        canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-        setTimeout(() => {
-            // Find Winning Prize: 
-            // The pointer is at 270 degrees (Top). 
-            // Formula: (Total Degrees - (Rotation % 360) + Pointer Offset) % 360
-            const actualRotation = currentRotation % 360;
-            const winningIndex = Math.floor(((360 - actualRotation + 270) % 360) / (360 / totalPrizes));
-            const prize = prizes[winningIndex];
-
-            showResult(prize, phone);
-        }, 5100);
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                finalizeSpin();
+            }
+        }
+        requestAnimationFrame(animate);
     }
 
-    function showResult(prize, phone) {
-        // Trigger Confetti
+    function finalizeSpin() {
+        isSpinning = false;
+        spinBtn.disabled = false;
+        
+        // Save to local storage unless admin
+        const phone = document.getElementById('phoneInput').value;
+        if (phone !== ADMIN_NUMBER) localStorage.setItem('ndr_played', 'true');
+
+        // Calculate result
+        // Pointer is at the top (-PI/2), so we adjust the rotation
+        const normalizedRotation = (currentRotation % (Math.PI * 2));
+        const index = Math.floor(
+            (prizes.length - (normalizedRotation / ((Math.PI * 2) / prizes.length)) - 1.5 + prizes.length) % prizes.length
+        );
+        
+        const win = prizes[index];
+        showResult(win.text.replace('\n', ' '));
+    }
+
+    function showResult(prize) {
         confetti({
             particleCount: 150,
             spread: 70,
             origin: { y: 0.6 },
-            colors: ['#FFD700', '#ffffff', '#ff0000']
+            colors: ['#FFD700', '#FFFFFF', '#000000']
         });
 
-        document.getElementById("prizeDisplay").innerText = "🏆 YOU WON: " + prize;
+        document.getElementById('winningPrizeText').innerText = prize;
+        document.getElementById('whatsappLink').href = `https://wa.me/91${CLAIM_NUMBER}?text=I won ${encodeURIComponent(prize)} on the NDR Lucky Spin!`;
         
-        // Prepare WhatsApp Link
-        const message = `Hi NDR! I just played the Lucky Spin. %0A📞 Phone: ${phone}%0A🎁 Prize Won: ${prize}%0AHere is my screenshot!`;
-        const waLink = `https://wa.me/919988870674?text=${message}`;
-        
-        document.getElementById("whatsappBtn").href = waLink;
-        document.getElementById("result-container").style.display = "block";
+        setTimeout(() => {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('result-modal').classList.add('active');
+        }, 800);
     }
+
+    function closeModal() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('result-modal').classList.remove('active');
+    }
+
+    // Initial Draw
+    draw();
 </script>
-</body>
-</html>
-</script>
+
 </body>
 </html>
